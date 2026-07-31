@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<title>Fleet Cycle Time Dashboard — Mining Fleet Operations</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{
+    --ink:#141311;
+    --paper:#efece2;
+    --panel:#1c1b18;
+    --panel2:#232220;
+    --yellow:#ffc72c;
+    --yellow-dim:#c99a1d;
+    --steel:#8b98a1;
+    --good:#5fb87a;
+    --warn:#e0a52b;
+    --bad:#e0603f;
+    --line:#3a3833;
+    --text:#efece2;
+    --textdim:#9c988c;
+    --mono: 'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+    --disp: 'Archivo Black','Arial Narrow',sans-serif;
+    --body: 'Inter','Helvetica Neue',Arial,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; background:var(--ink); color:var(--text); font-family:var(--body);
+    background-image:
+      radial-gradient(circle at 90% -10%, rgba(255,199,44,0.08), transparent 40%),
+      repeating-linear-gradient(135deg, rgba(255,255,255,0.012) 0px, rgba(255,255,255,0.012) 1px, transparent 1px, transparent 14px);
+  }
+  .wrap{max-width:1180px; margin:0 auto; padding:28px 24px 60px;}
+
+  /* HEADER */
+  header{
+    display:flex; justify-content:space-between; align-items:flex-end;
+    border-bottom:3px solid var(--yellow); padding-bottom:16px; margin-bottom:22px;
+    flex-wrap:wrap; gap:12px;
+  }
+  .brand{display:flex; align-items:center; gap:12px;}
+  .brand-mark{
+    width:40px;height:40px; background:var(--yellow); color:var(--ink);
+    display:flex;align-items:center;justify-content:center; font-family:var(--disp);
+    font-size:20px; transform:skew(-8deg);
+  }
+  h1{font-family:var(--disp); font-size:26px; letter-spacing:0.5px; margin:0; text-transform:uppercase;}
+  .sub{color:var(--textdim); font-size:12.5px; margin-top:2px; font-family:var(--mono);}
+  .shift-tag{
+    font-family:var(--mono); font-size:12px; color:var(--ink); background:var(--yellow);
+    padding:6px 12px; letter-spacing:0.5px; align-self:flex-end;
+  }
+
+  /* KPI ROW */
+  .kpi-row{display:grid; grid-template-columns:repeat(5,1fr); gap:2px; background:var(--line); margin-bottom:26px;}
+  .kpi{background:var(--panel); padding:16px 14px;}
+  .kpi .label{font-size:10.5px; text-transform:uppercase; letter-spacing:1px; color:var(--textdim); font-family:var(--mono);}
+  .kpi .value{font-family:var(--disp); font-size:28px; margin-top:6px; line-height:1;}
+  .kpi .value span.unit{font-size:13px; color:var(--textdim); font-family:var(--body); margin-left:3px;}
+  .kpi.flag .value{color:var(--bad);}
+  .kpi .note{font-size:11px; color:var(--textdim); margin-top:5px;}
+
+  section{margin-bottom:28px;}
+  .sec-head{display:flex; align-items:baseline; gap:10px; margin-bottom:12px;}
+  .sec-num{font-family:var(--mono); color:var(--yellow); font-size:13px;}
+  .sec-title{font-family:var(--disp); font-size:16px; text-transform:uppercase; letter-spacing:0.5px;}
+  .sec-desc{color:var(--textdim); font-size:12.5px; margin-left:auto; font-family:var(--mono); text-align:right;}
+
+  .grid2{display:grid; grid-template-columns:1.3fr 1fr; gap:2px; background:var(--line);}
+  .grid3{display:grid; grid-template-columns:1fr 1fr 1fr; gap:2px; background:var(--line);}
+  .panel{background:var(--panel); padding:18px;}
+  .panel h3{font-size:12.5px; text-transform:uppercase; letter-spacing:0.6px; color:var(--yellow); margin:0 0 12px; font-family:var(--mono); font-weight:600;}
+  canvas{max-height:280px;}
+
+  table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  th{text-align:left; font-family:var(--mono); text-transform:uppercase; font-size:10.5px; color:var(--textdim); padding:6px 8px; border-bottom:1px solid var(--line); letter-spacing:0.5px;}
+  td{padding:7px 8px; border-bottom:1px solid #2a2925; font-family:var(--mono);}
+  tr:last-child td{border-bottom:none;}
+  .bar-cell{position:relative;}
+  .bar-track{background:#2a2925; height:6px; border-radius:2px; overflow:hidden; margin-top:4px;}
+  .bar-fill{height:100%; background:var(--yellow);}
+
+  .pill{display:inline-block; padding:2px 8px; border-radius:2px; font-size:10.5px; font-family:var(--mono);}
+  .pill.good{background:rgba(95,184,122,0.15); color:var(--good);}
+  .pill.bad{background:rgba(224,96,63,0.15); color:var(--bad);}
+
+  .insight-box{background:var(--panel); border-left:3px solid var(--yellow); padding:16px 18px; margin-bottom:10px;}
+  .insight-box h4{margin:0 0 6px; font-size:13.5px; font-family:var(--body); font-weight:700; color:var(--yellow);}
+  .insight-box p{margin:0; font-size:13px; line-height:1.55; color:#dedad0;}
+  .insight-box .tag{font-family:var(--mono); font-size:10px; text-transform:uppercase; color:var(--textdim); letter-spacing:1px;}
+
+  .reco{display:flex; gap:12px; align-items:flex-start; padding:12px 0; border-bottom:1px solid var(--line);}
+  .reco:last-child{border-bottom:none;}
+  .reco .n{font-family:var(--disp); font-size:20px; color:var(--yellow); width:32px; flex-shrink:0;}
+  .reco b{font-size:13.5px;}
+  .reco p{margin:4px 0 0; font-size:12.5px; color:var(--textdim); line-height:1.5;}
+
+  footer{margin-top:30px; padding-top:14px; border-top:1px solid var(--line); font-family:var(--mono); font-size:11px; color:var(--textdim); display:flex; justify-content:space-between;}
+
+  @media (max-width:900px){
+    .kpi-row{grid-template-columns:repeat(2,1fr);}
+    .grid2, .grid3{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand">
+      <div class="brand-mark">K</div>
+      <div>
+        <h1>Fleet Cycle-Time &amp; Production Dashboard</h1>
+        <div class="sub">MINING FLEET OPERATIONS CASE STUDY — HAUL FLEET (PC1250 / PC2000 / HD785)</div>
+      </div>
+    </div>
+    <div class="shift-tag" id="shiftTag">SHIFT WINDOW —</div>
+  </header>
+
+  <div class="kpi-row" id="kpiRow"></div>
+
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">01</span><span class="sec-title">Cycle Time — Actual vs Plan</span>
+      <span class="sec-desc">minutes per component, by excavator model</span>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>PC1250 (8 units)</h3><canvas id="chartPC1250"></canvas></div>
+      <div class="panel"><h3>PC2000 (14 units)</h3><canvas id="chartPC2000"></canvas></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">02</span><span class="sec-title">Payload Performance</span>
+      <span class="sec-desc">actual tonnage vs 95t target payload</span>
+    </div>
+    <div class="grid3">
+      <div class="panel"><h3>Avg Payload (all cycles)</h3><canvas id="chartPayloadAll"></canvas></div>
+      <div class="panel"><h3>Avg Payload (loaded cycles only)</h3><canvas id="chartPayloadLoaded"></canvas></div>
+      <div class="panel">
+        <h3>Zero-Tonnage Cycles</h3>
+        <div style="font-family:var(--disp); font-size:42px; color:var(--bad); line-height:1;">19.4%</div>
+        <div style="font-size:12px; color:var(--textdim); margin-top:6px; font-family:var(--mono);">32 of 165 cycles hauled 0 tons</div>
+        <div style="font-size:12px; color:var(--textdim); margin-top:10px; line-height:1.5;">Concentrated at <b style="color:var(--text)">Load F, G, H</b> (PC1250) and <b style="color:var(--text)">Load B, D, G</b> (PC2000).</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">03</span><span class="sec-title">Production Trend</span>
+      <span class="sec-desc">tons hauled &amp; queue time, by hour</span>
+    </div>
+    <div class="panel"><canvas id="chartHourly" style="max-height:260px;"></canvas></div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">04</span><span class="sec-title">Material &amp; Haul Routes</span>
+      <span class="sec-desc">tons by material type / travel time by route</span>
+    </div>
+    <div class="grid2">
+      <div class="panel"><h3>Tons by Material Type</h3><canvas id="chartMaterial"></canvas></div>
+      <div class="panel">
+        <h3>Load → Dump Routes</h3>
+        <table>
+          <thead><tr><th>Route</th><th>Cycles</th><th>Avg t</th><th>Full trvl</th><th>Empty trvl</th></tr></thead>
+          <tbody id="routeTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="sec-num">05</span><span class="sec-title">Excavator Utilization</span>
+      <span class="sec-desc">cycles served per unit in the shift window</span>
+    </div>
+    <div class="panel"><canvas id="chartExcUtil" style="max-height:320px;"></canvas></div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">06</span><span class="sec-title">Key Insights</span></div>
+    <div class="insight-box">
+      <span class="tag">Payload gap</span>
+      <h4>Trucks are running 18–26% under the 95t payload target</h4>
+      <p>Even excluding zero-ton cycles, average loaded payload is 87.3t for PC1250 and 97.3t for PC2000 — but once the 19.4% zero-ton cycles are folded in, blended averages fall to 70.5t and 78.3t. PC1250's shortfall is the larger of the two once zero-tons are included, driven almost entirely by those empty cycles rather than under-filling on the loads that did happen.</p>
+    </div>
+    <div class="insight-box">
+      <span class="tag">Anomaly</span>
+      <h4>1 in 5 truck cycles hauls zero tons — this is the single largest productivity leak</h4>
+      <p>32 of 165 cycles show a complete truck-excavator cycle (queue, spot, load, haul, dump) with 0 tons recorded. If these cycles had carried the average loaded payload instead, the shift would have moved roughly <b style="color:#fff">2,960 additional tons</b> — about 24% more than the 12,311 tons actually recorded. This looks less like a demand issue and more like a data-capture or dispatch-matching issue (e.g. trucks cycling through without a valid load reading) and is worth validating against the source FMS/dispatch log.</p>
+    </div>
+    <div class="insight-box">
+      <span class="tag">Cycle time</span>
+      <h4>PC2000 cycles run ~63% longer than PC1250, largely from haul distance, not loading</h4>
+      <p>Average total cycle time is 20.8 min for PC1250 vs 33.9 min for PC2000. Loading itself is only ~2.4 min slower (4.75 vs 2.34 min), but full-travel duration is 6.9 min longer on average (16.8 vs 9.9 min) — PC2000 is evidently feeding dump points that sit further from the pit. Spot time also runs above plan for both models (PC1250: 1.56 vs 0.9 min target; PC2000: 2.15 vs 0.9 min target), a smaller but consistent gap worth a spotting-procedure review.</p>
+    </div>
+    <div class="insight-box">
+      <span class="tag">Utilization spread</span>
+      <h4>Excavator workload is uneven: some units handle 6–9× more cycles than others</h4>
+      <p>PC012 completed 18 cycles in the shift window vs 2 for PC028 and PC032. Some of this reflects genuinely shorter local routes (e.g. Load G/Dump G is the highest-volume route with the shortest full-travel time), but the spread is wide enough that it's worth checking whether it reflects deliberate dispatch strategy, downtime on the low-cycle units, or an assignment imbalance.</p>
+    </div>
+    <div class="insight-box">
+      <span class="tag">Peak load</span>
+      <h4>15:00–16:00 is the congestion peak</h4>
+      <p>Half of all recorded cycles (82 of 165) and over half the shift's tonnage fall in the 15:00 hour, with average queue time also peaking there (4.1 min vs a 0.96 min average the following hour). This is the hour where added queueing capacity or tighter truck-excavator matching would have the most impact.</p>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head"><span class="sec-num">07</span><span class="sec-title">Recommendations</span></div>
+    <div class="panel">
+      <div class="reco">
+        <div class="n">1</div>
+        <div><b>Audit the zero-tonnage cycles first.</b><p>Before optimizing anything else, confirm with the FMS/dispatch team whether these 32 cycles are genuine empty runs (e.g. relocation, standby) or a payload-sensor / data-linking fault. This single fix carries the largest potential tonnage upside in the dataset.</p></div>
+      </div>
+      <div class="reco">
+        <div class="n">2</div>
+        <div><b>Investigate spotting time against plan for both excavator types.</b><p>Both PC1250 (+0.66 min) and PC2000 (+1.25 min) run over the spot-time target. A focused observation of the spotting approach at the higher-volume pits (Load F, G, H) could recover this gap fleet-wide.</p></div>
+      </div>
+      <div class="reco">
+        <div class="n">3</div>
+        <div><b>Re-balance excavator-to-route assignment.</b><p>Route the shortest-haul pits (e.g. Load G↔Dump G, Load A↔Dump A) toward under-utilized units like PC028/PC032, and reserve the longer PC2000 hauls (Load E, F, D) for units already carrying volume efficiently, to close the utilization spread.</p></div>
+      </div>
+      <div class="reco">
+        <div class="n">4</div>
+        <div><b>Add dispatch capacity for the 15:00 peak.</b><p>Queue time nearly quadruples in the peak hour versus the following one. Pre-positioning trucks or staggering assignments ahead of 15:00 should reduce this specific bottleneck.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>DATA SOURCE: MTS_Data_Analyst_Test_Case — Data Actual Cycle (165 rows) &amp; Data Plan</span>
+    <span>PREPARED BY ABIYU RAIHAN</span>
+  </footer>
+
+</div>
+
+<script>
+const D = {"kpi": {"total_cycles": 165, "total_tons": 12311, "avg_payload_all": 74.6, "avg_payload_loaded": 92.6, "zero_ton_pct": 19.4, "zero_ton_count": 32, "avg_cycle_time": 27.7, "n_excavators": 22, "n_trucks": 81, "shift_start": "2023-11-03 12:54:15", "shift_end": "2023-11-03 16:45:28"}, "cycletime": {"categories": ["Queue", "Spot", "Load", "Full Travel", "Empty Travel", "Dump"], "PC1250_actual": [1.1, 1.56, 2.34, 9.91, 4.22, 1.66], "PC1250_plan": [2.5, 0.9, 3.3, null, null, 1.5], "PC2000_actual": [4.2, 2.15, 4.75, 16.81, 3.72, 2.23], "PC2000_plan": [null, 0.9, 4.0, null, null, null]}, "payload": {"types": ["PC1250", "PC2000"], "actual_all": [70.5, 78.3], "actual_loaded": [87.3, 97.3], "target": [95, 95]}, "hourly": {"hours": ["12:00", "13:00", "14:00", "15:00", "16:00"], "cycles": [1, 5, 14, 82, 63], "tons": [0, 341, 820, 6327, 4823], "avg_queue": [0.0, 4.04, 2.49, 4.1, 0.96]}, "material": {"labels": ["OB B", "OB E", "ROM ", "OB D", "West Type", "OB A", "OB C"], "tons": [3404, 2505, 1706, 1428, 1278, 1081, 909], "cycles": [41, 34, 21, 18, 24, 16, 11]}, "routes": [{"route": "Load G \u2192 Dump G", "cycles": 43, "avg_tons": 76.84, "avg_full_travel": 7.35, "avg_empty_travel": 4.31}, {"route": "Load F \u2192 Dump F", "cycles": 35, "avg_tons": 77.69, "avg_full_travel": 19.64, "avg_empty_travel": 2.64}, {"route": "Load D \u2192 Dump D", "cycles": 21, "avg_tons": 76.86, "avg_full_travel": 18.87, "avg_empty_travel": 7.18}, {"route": "Load H \u2192 Dump A", "cycles": 20, "avg_tons": 59.3, "avg_full_travel": 14.6, "avg_empty_travel": 2.88}, {"route": "Load B \u2192 Dump B", "cycles": 16, "avg_tons": 67.56, "avg_full_travel": 8.83, "avg_empty_travel": 2.21}, {"route": "Load C \u2192 Dump C", "cycles": 13, "avg_tons": 84.15, "avg_full_travel": 9.58, "avg_empty_travel": 2.99}, {"route": "Load E \u2192 Dump E", "cycles": 13, "avg_tons": 93.92, "avg_full_travel": 20.08, "avg_empty_travel": 3.31}, {"route": "Load A \u2192 Dump A", "cycles": 4, "avg_tons": 23.0, "avg_full_travel": 4.22, "avg_empty_travel": 12.31}], "excavator_util": [{"ExcavatorID": "PC012", "ExcavatorType": "PC2000", "cycles": 18}, {"ExcavatorID": "EX007", "ExcavatorType": "PC1250", "cycles": 13}, {"ExcavatorID": "EX025", "ExcavatorType": "PC1250", "cycles": 13}, {"ExcavatorID": "PC016", "ExcavatorType": "PC2000", "cycles": 12}, {"ExcavatorID": "EX027", "ExcavatorType": "PC1250", "cycles": 12}, {"ExcavatorID": "PC011", "ExcavatorType": "PC2000", "cycles": 12}, {"ExcavatorID": "EX018", "ExcavatorType": "PC1250", "cycles": 11}, {"ExcavatorID": "EX024", "ExcavatorType": "PC1250", "cycles": 10}, {"ExcavatorID": "EX026", "ExcavatorType": "PC1250", "cycles": 9}, {"ExcavatorID": "PC029", "ExcavatorType": "PC2000", "cycles": 8}, {"ExcavatorID": "PC026", "ExcavatorType": "PC2000", "cycles": 8}, {"ExcavatorID": "EX023", "ExcavatorType": "PC1250", "cycles": 5}, {"ExcavatorID": "EX028", "ExcavatorType": "PC1250", "cycles": 5}, {"ExcavatorID": "PC033", "ExcavatorType": "PC2000", "cycles": 5}, {"ExcavatorID": "PC021", "ExcavatorType": "PC2000", "cycles": 4}, {"ExcavatorID": "PC025", "ExcavatorType": "PC2000", "cycles": 4}, {"ExcavatorID": "PC019", "ExcavatorType": "PC2000", "cycles": 3}, {"ExcavatorID": "PC031", "ExcavatorType": "PC2000", "cycles": 3}, {"ExcavatorID": "PC038", "ExcavatorType": "PC2000", "cycles": 3}, {"ExcavatorID": "PC034", "ExcavatorType": "PC2000", "cycles": 3}, {"ExcavatorID": "PC028", "ExcavatorType": "PC2000", "cycles": 2}, {"ExcavatorID": "PC032", "ExcavatorType": "PC2000", "cycles": 2}], "zero_ton_detail": [{"ExcavatorType": "PC1250", "LoadLocation": "Load A", "count": 2}, {"ExcavatorType": "PC1250", "LoadLocation": "Load F", "count": 4}, {"ExcavatorType": "PC1250", "LoadLocation": "Load G", "count": 3}, {"ExcavatorType": "PC1250", "LoadLocation": "Load H", "count": 6}, {"ExcavatorType": "PC2000", "LoadLocation": "Load B", "count": 4}, {"ExcavatorType": "PC2000", "LoadLocation": "Load C", "count": 2}, {"ExcavatorType": "PC2000", "LoadLocation": "Load D", "count": 4}, {"ExcavatorType": "PC2000", "LoadLocation": "Load F", "count": 3}, {"ExcavatorType": "PC2000", "LoadLocation": "Load G", "count": 4}], "excavator_type_summary": [{"ExcavatorType": "PC1250", "cycles": 78, "total_tons": 5498, "avg_cycle": 20.79}, {"ExcavatorType": "PC2000", "cycles": 87, "total_tons": 6813, "avg_cycle": 33.87}]};
+
+Chart.defaults.color = '#9c988c';
+Chart.defaults.font.family = "'Inter','Helvetica Neue',Arial,sans-serif";
+Chart.defaults.font.size = 11;
+const YELLOW = '#ffc72c';
+const STEEL = '#5c6770';
+const GOOD = '#5fb87a';
+const BAD = '#e0603f';
+const GRID = 'rgba(255,255,255,0.06)';
+
+document.getElementById('shiftTag').textContent =
+  `SHIFT WINDOW — ${D.kpi.shift_start.slice(11,16)} to ${D.kpi.shift_end.slice(11,16)}, 3 Nov 2023`;
+
+// KPI row
+const kpis = [
+  {label:'Total Cycles', value: D.kpi.total_cycles, unit:'cycles'},
+  {label:'Total Tons Hauled', value: D.kpi.total_tons.toLocaleString(), unit:'t'},
+  {label:'Avg Payload (all)', value: D.kpi.avg_payload_all, unit:'t / cycle'},
+  {label:'Zero-Ton Cycles', value: D.kpi.zero_ton_pct+'%', unit:'('+D.kpi.zero_ton_count+' cycles)', flag:true},
+  {label:'Avg Cycle Time', value: D.kpi.avg_cycle_time, unit:'min'},
+];
+document.getElementById('kpiRow').innerHTML = kpis.map(k=>`
+  <div class="kpi ${k.flag?'flag':''}">
+    <div class="label">${k.label}</div>
+    <div class="value">${k.value}<span class="unit">${k.unit}</span></div>
+  </div>`).join('');
+
+function cycleChart(ctxId, actual, plan){
+  new Chart(document.getElementById(ctxId), {
+    type:'bar',
+    data:{
+      labels: D.cycletime.categories,
+      datasets:[
+        {label:'Actual', data:actual, backgroundColor: YELLOW, borderRadius:2, barPercentage:0.6},
+        {label:'Plan', data:plan, backgroundColor:'transparent', borderColor: '#efece2', borderWidth:2, type:'line', pointRadius:4, pointBackgroundColor:'#efece2', spanGaps:true}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10, padding:14}}},
+      scales:{
+        y:{beginAtZero:true, title:{display:true,text:'minutes'}, grid:{color:GRID}},
+        x:{grid:{display:false}}
+      }
+    }
+  });
+}
+cycleChart('chartPC1250', D.cycletime.PC1250_actual, D.cycletime.PC1250_plan);
+cycleChart('chartPC2000', D.cycletime.PC2000_actual, D.cycletime.PC2000_plan);
+
+function payloadChart(ctxId, actualArr){
+  new Chart(document.getElementById(ctxId), {
+    type:'bar',
+    data:{
+      labels: D.payload.types,
+      datasets:[
+        {label:'Actual', data:actualArr, backgroundColor:[YELLOW, '#e8a800'], borderRadius:3, barPercentage:0.5},
+        {label:'Target (95t)', data: D.payload.target, backgroundColor:'transparent', borderColor:'#efece2', borderWidth:2, borderDash:[4,3], type:'line', pointRadius:0}
+      ]
+    },
+    options:{
+      responsive:true,
+      plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:14}}},
+      scales:{ y:{beginAtZero:true, max:110, title:{display:true,text:'tons'}, grid:{color:GRID}}, x:{grid:{display:false}} }
+    }
+  });
+}
+payloadChart('chartPayloadAll', D.payload.actual_all);
+payloadChart('chartPayloadLoaded', D.payload.actual_loaded);
+
+new Chart(document.getElementById('chartHourly'), {
+  data:{
+    labels: D.hourly.hours,
+    datasets:[
+      {type:'bar', label:'Tons hauled', data: D.hourly.tons, backgroundColor: YELLOW, yAxisID:'y', borderRadius:2, barPercentage:0.55},
+      {type:'line', label:'Avg queue time (min)', data: D.hourly.avg_queue, borderColor: BAD, backgroundColor: BAD, yAxisID:'y1', tension:0.3, pointRadius:4}
+    ]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{position:'bottom', labels:{boxWidth:10,padding:14}}},
+    scales:{
+      y:{position:'left', title:{display:true,text:'tons'}, grid:{color:GRID}},
+      y1:{position:'right', title:{display:true,text:'queue (min)'}, grid:{display:false}},
+      x:{grid:{display:false}}
+    }
+  }
+});
+
+new Chart(document.getElementById('chartMaterial'), {
+  type:'bar',
+  data:{
+    labels: D.material.labels,
+    datasets:[{label:'Tons', data: D.material.tons, backgroundColor: YELLOW, borderRadius:2}]
+  },
+  options:{
+    indexAxis:'y',
+    responsive:true,
+    plugins:{legend:{display:false}},
+    scales:{ x:{beginAtZero:true, grid:{color:GRID}}, y:{grid:{display:false}} }
+  }
+});
+
+const routeRows = D.routes.map(r=>{
+  const pct = Math.min(100, r.cycles/43*100);
+  return `<tr>
+    <td>${r.route}</td>
+    <td>${r.cycles}<div class="bar-track"><div class="bar-fill" style="width:${pct}%"></div></div></td>
+    <td>${r.avg_tons}</td>
+    <td>${r.avg_full_travel}</td>
+    <td>${r.avg_empty_travel}</td>
+  </tr>`;
+}).join('');
+document.getElementById('routeTable').innerHTML = routeRows;
+
+const excSorted = D.excavator_util;
+new Chart(document.getElementById('chartExcUtil'), {
+  type:'bar',
+  data:{
+    labels: excSorted.map(e=>e.ExcavatorID),
+    datasets:[{
+      label:'Cycles',
+      data: excSorted.map(e=>e.cycles),
+      backgroundColor: excSorted.map(e=> e.ExcavatorType==='PC1250' ? YELLOW : '#7d8790'),
+      borderRadius:2
+    }]
+  },
+  options:{
+    responsive:true,
+    plugins:{legend:{display:true, position:'bottom', labels:{
+      generateLabels: () => [
+        {text:'PC1250', fillStyle:YELLOW, strokeStyle:YELLOW},
+        {text:'PC2000', fillStyle:'#7d8790', strokeStyle:'#7d8790'}
+      ]
+    }}},
+    scales:{ y:{beginAtZero:true, title:{display:true,text:'cycles'}, grid:{color:GRID}}, x:{grid:{display:false}, ticks:{maxRotation:90,minRotation:90}} }
+  }
+});
+</script>
+</body>
+</html>

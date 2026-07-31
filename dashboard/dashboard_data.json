@@ -1,0 +1,365 @@
+{
+  "kpi": {
+    "total_cycles": 165,
+    "total_tons": 12311,
+    "avg_payload_all": 74.6,
+    "avg_payload_loaded": 92.6,
+    "zero_ton_pct": 19.4,
+    "zero_ton_count": 32,
+    "avg_cycle_time": 27.7,
+    "n_excavators": 22,
+    "n_trucks": 81,
+    "shift_start": "2023-11-03 12:54:15",
+    "shift_end": "2023-11-03 16:45:28"
+  },
+  "cycletime": {
+    "categories": [
+      "Queue",
+      "Spot",
+      "Load",
+      "Full Travel",
+      "Empty Travel",
+      "Dump"
+    ],
+    "PC1250_actual": [
+      1.1,
+      1.56,
+      2.34,
+      9.91,
+      4.22,
+      1.66
+    ],
+    "PC1250_plan": [
+      2.5,
+      0.9,
+      3.3,
+      null,
+      null,
+      1.5
+    ],
+    "PC2000_actual": [
+      4.2,
+      2.15,
+      4.75,
+      16.81,
+      3.72,
+      2.23
+    ],
+    "PC2000_plan": [
+      null,
+      0.9,
+      4.0,
+      null,
+      null,
+      null
+    ]
+  },
+  "payload": {
+    "types": [
+      "PC1250",
+      "PC2000"
+    ],
+    "actual_all": [
+      70.5,
+      78.3
+    ],
+    "actual_loaded": [
+      87.3,
+      97.3
+    ],
+    "target": [
+      95,
+      95
+    ]
+  },
+  "hourly": {
+    "hours": [
+      "12:00",
+      "13:00",
+      "14:00",
+      "15:00",
+      "16:00"
+    ],
+    "cycles": [
+      1,
+      5,
+      14,
+      82,
+      63
+    ],
+    "tons": [
+      0,
+      341,
+      820,
+      6327,
+      4823
+    ],
+    "avg_queue": [
+      0.0,
+      4.04,
+      2.49,
+      4.1,
+      0.96
+    ]
+  },
+  "material": {
+    "labels": [
+      "OB B",
+      "OB E",
+      "ROM ",
+      "OB D",
+      "West Type",
+      "OB A",
+      "OB C"
+    ],
+    "tons": [
+      3404,
+      2505,
+      1706,
+      1428,
+      1278,
+      1081,
+      909
+    ],
+    "cycles": [
+      41,
+      34,
+      21,
+      18,
+      24,
+      16,
+      11
+    ]
+  },
+  "routes": [
+    {
+      "route": "Load G \u2192 Dump G",
+      "cycles": 43,
+      "avg_tons": 76.84,
+      "avg_full_travel": 7.35,
+      "avg_empty_travel": 4.31
+    },
+    {
+      "route": "Load F \u2192 Dump F",
+      "cycles": 35,
+      "avg_tons": 77.69,
+      "avg_full_travel": 19.64,
+      "avg_empty_travel": 2.64
+    },
+    {
+      "route": "Load D \u2192 Dump D",
+      "cycles": 21,
+      "avg_tons": 76.86,
+      "avg_full_travel": 18.87,
+      "avg_empty_travel": 7.18
+    },
+    {
+      "route": "Load H \u2192 Dump A",
+      "cycles": 20,
+      "avg_tons": 59.3,
+      "avg_full_travel": 14.6,
+      "avg_empty_travel": 2.88
+    },
+    {
+      "route": "Load B \u2192 Dump B",
+      "cycles": 16,
+      "avg_tons": 67.56,
+      "avg_full_travel": 8.83,
+      "avg_empty_travel": 2.21
+    },
+    {
+      "route": "Load C \u2192 Dump C",
+      "cycles": 13,
+      "avg_tons": 84.15,
+      "avg_full_travel": 9.58,
+      "avg_empty_travel": 2.99
+    },
+    {
+      "route": "Load E \u2192 Dump E",
+      "cycles": 13,
+      "avg_tons": 93.92,
+      "avg_full_travel": 20.08,
+      "avg_empty_travel": 3.31
+    },
+    {
+      "route": "Load A \u2192 Dump A",
+      "cycles": 4,
+      "avg_tons": 23.0,
+      "avg_full_travel": 4.22,
+      "avg_empty_travel": 12.31
+    }
+  ],
+  "excavator_util": [
+    {
+      "ExcavatorID": "PC012",
+      "ExcavatorType": "PC2000",
+      "cycles": 18
+    },
+    {
+      "ExcavatorID": "EX007",
+      "ExcavatorType": "PC1250",
+      "cycles": 13
+    },
+    {
+      "ExcavatorID": "EX025",
+      "ExcavatorType": "PC1250",
+      "cycles": 13
+    },
+    {
+      "ExcavatorID": "PC016",
+      "ExcavatorType": "PC2000",
+      "cycles": 12
+    },
+    {
+      "ExcavatorID": "EX027",
+      "ExcavatorType": "PC1250",
+      "cycles": 12
+    },
+    {
+      "ExcavatorID": "PC011",
+      "ExcavatorType": "PC2000",
+      "cycles": 12
+    },
+    {
+      "ExcavatorID": "EX018",
+      "ExcavatorType": "PC1250",
+      "cycles": 11
+    },
+    {
+      "ExcavatorID": "EX024",
+      "ExcavatorType": "PC1250",
+      "cycles": 10
+    },
+    {
+      "ExcavatorID": "EX026",
+      "ExcavatorType": "PC1250",
+      "cycles": 9
+    },
+    {
+      "ExcavatorID": "PC029",
+      "ExcavatorType": "PC2000",
+      "cycles": 8
+    },
+    {
+      "ExcavatorID": "PC026",
+      "ExcavatorType": "PC2000",
+      "cycles": 8
+    },
+    {
+      "ExcavatorID": "EX023",
+      "ExcavatorType": "PC1250",
+      "cycles": 5
+    },
+    {
+      "ExcavatorID": "EX028",
+      "ExcavatorType": "PC1250",
+      "cycles": 5
+    },
+    {
+      "ExcavatorID": "PC033",
+      "ExcavatorType": "PC2000",
+      "cycles": 5
+    },
+    {
+      "ExcavatorID": "PC021",
+      "ExcavatorType": "PC2000",
+      "cycles": 4
+    },
+    {
+      "ExcavatorID": "PC025",
+      "ExcavatorType": "PC2000",
+      "cycles": 4
+    },
+    {
+      "ExcavatorID": "PC019",
+      "ExcavatorType": "PC2000",
+      "cycles": 3
+    },
+    {
+      "ExcavatorID": "PC031",
+      "ExcavatorType": "PC2000",
+      "cycles": 3
+    },
+    {
+      "ExcavatorID": "PC038",
+      "ExcavatorType": "PC2000",
+      "cycles": 3
+    },
+    {
+      "ExcavatorID": "PC034",
+      "ExcavatorType": "PC2000",
+      "cycles": 3
+    },
+    {
+      "ExcavatorID": "PC028",
+      "ExcavatorType": "PC2000",
+      "cycles": 2
+    },
+    {
+      "ExcavatorID": "PC032",
+      "ExcavatorType": "PC2000",
+      "cycles": 2
+    }
+  ],
+  "zero_ton_detail": [
+    {
+      "ExcavatorType": "PC1250",
+      "LoadLocation": "Load A",
+      "count": 2
+    },
+    {
+      "ExcavatorType": "PC1250",
+      "LoadLocation": "Load F",
+      "count": 4
+    },
+    {
+      "ExcavatorType": "PC1250",
+      "LoadLocation": "Load G",
+      "count": 3
+    },
+    {
+      "ExcavatorType": "PC1250",
+      "LoadLocation": "Load H",
+      "count": 6
+    },
+    {
+      "ExcavatorType": "PC2000",
+      "LoadLocation": "Load B",
+      "count": 4
+    },
+    {
+      "ExcavatorType": "PC2000",
+      "LoadLocation": "Load C",
+      "count": 2
+    },
+    {
+      "ExcavatorType": "PC2000",
+      "LoadLocation": "Load D",
+      "count": 4
+    },
+    {
+      "ExcavatorType": "PC2000",
+      "LoadLocation": "Load F",
+      "count": 3
+    },
+    {
+      "ExcavatorType": "PC2000",
+      "LoadLocation": "Load G",
+      "count": 4
+    }
+  ],
+  "excavator_type_summary": [
+    {
+      "ExcavatorType": "PC1250",
+      "cycles": 78,
+      "total_tons": 5498,
+      "avg_cycle": 20.79
+    },
+    {
+      "ExcavatorType": "PC2000",
+      "cycles": 87,
+      "total_tons": 6813,
+      "avg_cycle": 33.87
+    }
+  ]
+}
