@@ -4,7 +4,7 @@ Analysis of a mining haul-fleet dataset (excavator + truck cycle times) to
 evaluate production performance against an operating plan, and to surface
 actionable insights for dispatch and fleet management.
 
-**[View the live dashboard →](#)** *(replace with your GitHub Pages link after enabling it — see below)*
+**[View the live dashboard →](https://abiyuraihanhanif.github.io/mining-fleet-cycle-time-analysis/dashboard/)**
 
 ![cycle time chart](images/chart_cycletime.png)
 
