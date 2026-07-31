@@ -61,14 +61,6 @@ Python (pandas, matplotlib) for data cleaning and analysis; plain HTML/JS
 (Chart.js) for the interactive dashboard; python-docx/docx-js for the written
 report.
 
-## Viewing the dashboard
-
-Open `dashboard/index.html` directly in a browser — it's fully self-contained,
-no server required. To host it as a live portfolio link:
-
-1. Push this repo to GitHub.
-2. Go to **Settings → Pages**, set source to the `main` branch, root folder (or `/dashboard` if you want the dashboard as the site root).
-3. Your dashboard will be live at `https://<username>.github.io/<repo-name>/dashboard/`.
 
 ---
 Prepared by Abiyu Raihan.
