@@ -29,6 +29,7 @@ components and payload.
   than the least-used one.
 
 Full write-up with recommendations: [`report/Fleet_Analysis_Report.docx`](report/Fleet_Analysis_Report.docx).
+PDF: (https://drive.google.com/file/d/17nRG_lSrVaHhEw8BtvvV9dfUnbirQIMf/view?usp=sharing)
 
 ## Repo structure
 
